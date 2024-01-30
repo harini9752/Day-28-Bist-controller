@@ -1,0 +1,42 @@
+
+module tb_memory_bist;
+
+  reg clk;
+  reg rst;
+  wire bist_done;
+
+  memory_bist uut (
+    .clk(clk),
+    .rst(rst),
+    .bist_done(bist_done)
+  );
+
+  initial begin
+    clk = 0;
+    rst = 1;
+    #10 rst = 0;
+
+
+    #100;
+    // Memory Initialization
+    uut.memory[0] = 8'b00000001;
+    uut.memory[1] = 8'b00000010;
+    uut.memory[2] = 8'b00000011;
+    // Start BIST
+    uut.bist_enable = 1;
+    // Wait for BIST completion
+    #100;
+
+    // Test 2: Simulate a failure by changing memory content
+    uut.memory[1] = 8'b11111111;
+    uut.bist_enable = 1;
+    #100;
+
+    // Add more test cases as needed
+
+    $finish;
+  end
+
+  always #5 clk = ~clk;
+
+endmodule
