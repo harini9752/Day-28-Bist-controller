@@ -1,0 +1,44 @@
+// Day 40: Memory BIST Module
+module memory_bist(
+  input wire clk,
+  input wire rst,
+  output wire bist_done
+);
+  parameter MEM_DEPTH = 64;
+  parameter MEM_WIDTH = 8;
+
+  reg [MEM_WIDTH-1:0] memory [MEM_DEPTH-1:0];
+  reg [MEM_WIDTH-1:0] write_data;
+  reg [MEM_WIDTH-1:0] read_data;
+  reg [MEM_DEPTH-1:0] addr;
+  reg [MEM_DEPTH-1:0] write_addr;
+  reg bist_enable;
+  reg test_passed;
+
+  always @(posedge clk or posedge rst) begin
+    if (rst) begin
+      memory <= 0;
+      bist_enable <= 0;
+      test_passed <= 0;
+      addr <= 0;
+      write_addr <= 0;
+    end else begin
+      if (bist_enable) begin
+        // Memory write operation
+        memory[write_addr] <= write_data;
+        
+        // Memory read operation
+        read_data <= memory[addr];
+        
+        // BIST checker
+        if (read_data !== write_data) begin
+          test_passed <= 0;
+        end else if (addr == MEM_DEPTH - 1) begin
+          // All memory locations checked
+          test_passed <= 1;
+        end
+      end
+    end
+  end
+
+  always @(posed
